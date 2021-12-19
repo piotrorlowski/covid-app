@@ -1,0 +1,11 @@
+.covidForm {
+  margin-bottom: 20px;
+}
+
+.highcharts-subtitle {
+  text-transform: capitalize;
+}
+
+.error {
+  color: red;
+}

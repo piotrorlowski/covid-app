@@ -1,11 +1,13 @@
 const elements = [
   'btnFetch',
+  'country',
   'start',
   'end',
   'container',
+  'error',
 ];
 
-const [btnFetch, start, end, container] = elements.map(element => document.getElementById(element));
+const [btnFetch, country, start, end, container, error] = elements.map(element => document.getElementById(element));
 
 const options = {
   legend: {
@@ -14,10 +16,10 @@ const options = {
     verticalAlign: 'middle'
   },
   title: {
-    text: 'COVID'
+    text: 'COVID cases chart'
   },
   subtitle: {
-    text: 'Cases in Poland'
+    text: ''
   },
   yAxis: {
     title: {
@@ -40,17 +42,31 @@ const options = {
 
 const chart = Highcharts.chart('container', options);
 
-const fetchData = () => {
+const fetchData = (event) => {
+  error.innerText = "";
+  event.preventDefault();
+  const countryVal = country.value ? country.value : 'Poland';
   const startVal = start.value;
   const endVal = end.value;
-  const url = `https://api.covid19api.com/country/poland/status/confirmed/live?from=${startVal}&to=${endVal}`;
+  if (!startVal && !endVal) {
+    error.innerText = 'Start/End Dates required';
+    return
+  }
+  let myChart = document.getElementById('myChart');
+  myChart.remove();
+
+
+  const url = `https://api.covid19api.com/country/${countryVal}/status/confirmed/live?from=${startVal}&to=${endVal}`;
   fetch(url)
     .then(response => response.json())
     .then(result => {
-        const cases = result.map(item => item.Cases);
-        const startDate = startVal.split('-');
-        const pointStart = startVal && endVal ? Date.UTC(Number(startDate[0]), Number(startDate[1] - 1), Number(startDate[2])) : Date.UTC(2020, 2, 1);
-        const newOptions = {
+      const cases = result.map(item => item.Cases);
+      const startDate = startVal.split('-');
+      const pointStart = Date.UTC(Number(startDate[0]), Number(startDate[1] - 1), Number(startDate[2]));
+      const newOptions = {
+          subtitle: {
+            text: `Cases in ${countryVal}`
+          },
           plotOptions: {
             series: {
                 pointStart,
@@ -58,13 +74,39 @@ const fetchData = () => {
             }
           },
           series: [{
-            type: 'column',
+            type: 'line',
             yAxiis: 0,
             name: 'Cases',
             data: cases,
           }]
         };
-        chart.update(newOptions);
+      chart.update(newOptions, true, true);
+      
+      const labels = result.map(item => item.Date);
+
+      const data = {
+        labels: labels,
+        datasets: [{
+          label: 'My First dataset',
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+          data: cases,
+        }]
+      };
+
+      const config = {
+        type: 'line',
+        data: data,
+        options: {}
+      };
+
+      const body = document.getElementById('body');
+      const canvas = document.createElement('canvas')
+      myChart = body.appendChild(canvas);
+      myChart.setAttribute('id', 'myChart');
+
+      new Chart(myChart, config);
+
     }).catch(error => {
       console.log(error);
     });
