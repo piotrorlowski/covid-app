@@ -65,7 +65,7 @@ const fetchData = (event) => {
       const pointStart = Date.UTC(Number(startDate[0]), Number(startDate[1] - 1), Number(startDate[2]));
       const newOptions = {
           subtitle: {
-            text: `Cases in ${countryVal}`
+            text: `Covid cases in ${countryVal}`
           },
           plotOptions: {
             series: {
@@ -87,7 +87,7 @@ const fetchData = (event) => {
       const data = {
         labels: labels,
         datasets: [{
-          label: 'My First dataset',
+          label: `Covid cases ${countryVal}`,
           backgroundColor: 'rgb(255, 99, 132)',
           borderColor: 'rgb(255, 99, 132)',
           data: cases,
@@ -95,7 +95,7 @@ const fetchData = (event) => {
       };
 
       const config = {
-        type: 'line',
+        type: 'bar',
         data: data,
         options: {}
       };
